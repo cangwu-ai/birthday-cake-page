@@ -1,0 +1,48 @@
+@font-face {
+  font-family: 'Birthday Brush';
+  src: url('./assets/birthday-brush.ttf') format('truetype');
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Shiye';
+  src: url('./assets/shiye.ttf') format('truetype');
+  font-display: swap;
+}
+:root { color-scheme: dark; background: #000; }
+* { box-sizing: border-box; }
+html, body { margin: 0; min-width: 0; background: #000; }
+body { min-height: 100svh; }
+.birthday {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: max(12px, env(safe-area-inset-top)) max(0px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(0px, env(safe-area-inset-left));
+}
+.scene {
+  /* Porcelain spans 418 of 490 viewBox units: about 86vw on phones. */
+  width: min(100%, 640px, calc((100svh - 32px - env(safe-area-inset-top) - env(safe-area-inset-bottom)) * .68055));
+  max-width: 100%;
+  margin: 0;
+}
+.cake-art { display: block; width: 100%; height: auto; overflow: visible; }
+.birthday-title text { font-family: 'Birthday Brush', cursive; font-size: 47px; }
+.signature { font-family: 'Shiye', cursive; font-size: 27px; }
+.cake-lettering { font-family: 'Trebuchet MS', sans-serif; }
+.flame { transform-box: fill-box; transform-origin: 50% 100%; animation: flicker 2.6s ease-in-out infinite; }
+.flame-halo { animation: glow 2.6s ease-in-out infinite; }
+.drifting-star { animation: drift var(--duration) ease-in-out var(--delay) infinite alternate; }
+.twinkle { animation: twinkle var(--twinkle-duration) ease-in-out var(--delay) infinite alternate; }
+@keyframes flicker {
+  0%, 100% { transform: scale(.96, 1); opacity: .94; }
+  24% { transform: scale(1.05, .94) rotate(-1.5deg); opacity: .82; }
+  51% { transform: scale(.94, 1.05) rotate(1deg); opacity: 1; }
+  76% { transform: scale(1.02, .98); opacity: .9; }
+}
+@keyframes glow { 0%, 100% { opacity: .8; } 50% { opacity: .45; } }
+@keyframes drift { from { transform: translate(0, 0); } to { transform: translate(var(--dx), var(--dy)); } }
+@keyframes twinkle { from { opacity: .25; } to { opacity: 1; } }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .flame, .flame-halo, .drifting-star, .twinkle { animation: none; }
+}
