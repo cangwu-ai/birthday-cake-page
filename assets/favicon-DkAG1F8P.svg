@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" fill="#000"/>
+  <circle cx="16" cy="20" r="8" fill="#122d69"/>
+  <ellipse cx="16" cy="13" rx="8" ry="3" fill="#0a1730"/>
+  <path d="M8 15 C8 13 24 13 24 15 L24 20 C24 24 8 24 8 20Z" fill="url(#cake)"/>
+  <path d="M8 14 C9 15 10 16 12 15 S15 17 16 15 S19 16 20 14 S23 15 24 14" stroke="url(#icing)" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <rect x="15" y="6" width="2" height="7" fill="#ffe9a5" rx="1"/>
+  <ellipse cx="16" cy="5" rx="2" ry="3" fill="#ffcc48"/>
+  <ellipse cx="16" cy="4" rx="1" ry="2" fill="#fff"/>
+  <defs>
+    <linearGradient id="cake" x2="0" y2="1">
+      <stop stop-color="#122d69"/>
+      <stop offset="1" stop-color="#060c19"/>
+    </linearGradient>
+    <linearGradient id="icing" x2="1" y2="0">
+      <stop stop-color="#74ebff"/>
+      <stop offset="0.5" stop-color="#a58cf4"/>
+      <stop offset="1" stop-color="#f886ce"/>
+    </linearGradient>
+  </defs>
+</svg>
