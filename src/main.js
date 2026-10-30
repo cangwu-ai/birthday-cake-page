@@ -17,11 +17,14 @@ const COLORS = {
 
 const colorArray = Object.values(COLORS);
 
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+  (window.matchMedia && window.matchMedia('(max-width: 768px)').matches);
+const isLowEnd = isMobile && (navigator.hardwareConcurrency <= 4 || navigator.deviceMemory <= 4);
+
 class BirthdayCakeScene {
   constructor() {
     this.container = document.getElementById('canvas-container');
-    this.width = window.innerWidth;
-    this.height = window.innerHeight;
+    this.updateDimensions();
     this.clock = new THREE.Clock();
     this.mouse = new THREE.Vector2();
     this.targetRotation = new THREE.Vector2();
@@ -41,25 +44,61 @@ class BirthdayCakeScene {
     this.animate();
   }
 
+  updateDimensions() {
+    if (window.visualViewport) {
+      this.width = window.visualViewport.width;
+      this.height = window.visualViewport.height;
+    } else {
+      this.width = window.innerWidth;
+      this.height = window.innerHeight;
+    }
+  }
+
   init() {
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0x000000);
 
-    const aspect = this.width / this.height;
-    const fov = aspect < 1 ? 55 : 40;
-    this.camera = new THREE.PerspectiveCamera(fov, aspect, 0.1, 1000);
-    this.camera.position.set(0, 1, 7);
-    this.camera.lookAt(0, 0.3, 0);
+    this.setupCamera();
 
+    const maxDpr = isLowEnd ? 1.5 : (isMobile ? 2 : 2.5);
     this.renderer = new THREE.WebGLRenderer({
-      antialias: true,
-      powerPreference: 'high-performance',
+      antialias: !isLowEnd,
+      powerPreference: isMobile ? 'default' : 'high-performance',
     });
     this.renderer.setSize(this.width, this.height);
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, maxDpr));
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.0;
     this.container.appendChild(this.renderer.domElement);
+  }
+
+  setupCamera() {
+    const aspect = this.width / this.height;
+    const isPortrait = aspect < 1;
+
+    let fov, camZ, lookAtY;
+    if (isPortrait) {
+      fov = 50 + (1 - aspect) * 20;
+      camZ = 8.5 + (1 - aspect) * 2;
+      lookAtY = 0.0;
+    } else {
+      fov = 40;
+      camZ = 7;
+      lookAtY = 0.3;
+    }
+
+    if (!this.camera) {
+      this.camera = new THREE.PerspectiveCamera(fov, aspect, 0.1, 1000);
+    } else {
+      this.camera.fov = fov;
+      this.camera.aspect = aspect;
+    }
+    this.camera.position.set(0, 1, camZ);
+    this.camera.lookAt(0, lookAtY, 0);
+    this.camera.updateProjectionMatrix();
+
+    this.baseCamZ = camZ;
+    this.baseLookAtY = lookAtY;
   }
 
   createScene() {
@@ -543,7 +582,7 @@ class BirthdayCakeScene {
   }
 
   createStarParticles() {
-    const count = 600;
+    const count = isLowEnd ? 200 : (isMobile ? 350 : 600);
     const positions = new Float32Array(count * 3);
     const colors = new Float32Array(count * 3);
     const sizes = new Float32Array(count);
@@ -646,7 +685,7 @@ class BirthdayCakeScene {
   }
 
   createFloatingConfetti() {
-    const count = 150;
+    const count = isLowEnd ? 50 : (isMobile ? 80 : 150);
     const positions = new Float32Array(count * 3);
     const colors = new Float32Array(count * 3);
     const sizes = new Float32Array(count);
@@ -784,28 +823,29 @@ class BirthdayCakeScene {
   }
 
   bindEvents() {
-    window.addEventListener('resize', this.onResize.bind(this));
+    const resizeHandler = this.onResize.bind(this);
+    window.addEventListener('resize', resizeHandler);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', resizeHandler);
+    }
 
     this.container.addEventListener('mousedown', this.onPointerDown.bind(this));
     this.container.addEventListener('mousemove', this.onPointerMove.bind(this));
     this.container.addEventListener('mouseup', this.onPointerUp.bind(this));
     this.container.addEventListener('mouseleave', this.onPointerUp.bind(this));
 
-    this.container.addEventListener('touchstart', this.onTouchStart.bind(this), { passive: true });
-    this.container.addEventListener('touchmove', this.onTouchMove.bind(this), { passive: true });
+    this.container.addEventListener('touchstart', this.onTouchStart.bind(this), { passive: false });
+    this.container.addEventListener('touchmove', this.onTouchMove.bind(this), { passive: false });
     this.container.addEventListener('touchend', this.onPointerUp.bind(this));
 
     this.container.addEventListener('click', this.onClick.bind(this));
+
+    document.addEventListener('gesturestart', (e) => e.preventDefault());
   }
 
   onResize() {
-    this.width = window.innerWidth;
-    this.height = window.innerHeight;
-
-    const aspect = this.width / this.height;
-    this.camera.fov = aspect < 1 ? 55 : 40;
-    this.camera.aspect = aspect;
-    this.camera.updateProjectionMatrix();
+    this.updateDimensions();
+    this.setupCamera();
 
     this.renderer.setSize(this.width, this.height);
     this.composer.setSize(this.width, this.height);
@@ -838,6 +878,7 @@ class BirthdayCakeScene {
 
   onTouchStart(e) {
     if (e.touches.length === 1) {
+      e.preventDefault();
       this.isDragging = true;
       this.previousMouse.set(e.touches[0].clientX, e.touches[0].clientY);
     }
@@ -845,13 +886,14 @@ class BirthdayCakeScene {
 
   onTouchMove(e) {
     if (!this.isDragging || e.touches.length !== 1) return;
+    e.preventDefault();
 
     const touch = e.touches[0];
     const deltaX = touch.clientX - this.previousMouse.x;
     const deltaY = touch.clientY - this.previousMouse.y;
 
-    this.targetRotation.x += deltaX * 0.005;
-    this.targetRotation.y = Math.max(-0.4, Math.min(0.4, this.targetRotation.y + deltaY * 0.003));
+    this.targetRotation.x += deltaX * 0.006;
+    this.targetRotation.y = Math.max(-0.5, Math.min(0.5, this.targetRotation.y + deltaY * 0.004));
 
     this.previousMouse.set(touch.clientX, touch.clientY);
   }
@@ -949,7 +991,7 @@ class BirthdayCakeScene {
 
     this.cakeGroup.rotation.y = this.currentRotation.x;
     this.camera.position.y = 1 + this.currentRotation.y * 1.5;
-    this.camera.lookAt(0, 0.3, 0);
+    this.camera.lookAt(0, this.baseLookAtY || 0.3, 0);
 
     this.glassSphere.material.uniforms.uTime.value = time;
     this.cake.material.uniforms.uTime.value = time;

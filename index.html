@@ -9,9 +9,6 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Happy birthday! - 拾野</title>
   <link rel="icon" href="./assets/favicon-DkAG1F8P.svg" type="image/svg+xml">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;600&display=swap" rel="stylesheet">
   <style>
     * {
       margin: 0;
@@ -21,11 +18,15 @@
 
     html, body {
       width: 100%;
-      height: 100%;
+      height: 100vh;
+      height: 100dvh;
       overflow: hidden;
       background: #000;
       color-scheme: dark;
       touch-action: none;
+      -webkit-touch-callout: none;
+      -webkit-tap-highlight-color: transparent;
+      overscroll-behavior: none;
     }
 
     #canvas-container {
@@ -33,8 +34,10 @@
       top: 0;
       left: 0;
       width: 100%;
-      height: 100%;
+      height: 100vh;
+      height: 100dvh;
       z-index: 1;
+      touch-action: none;
     }
 
     #canvas-container canvas {
@@ -49,7 +52,7 @@
     }
 
     .birthday-text {
-      bottom: 12%;
+      bottom: calc(12% + env(safe-area-inset-bottom, 0px));
       left: 50%;
       transform: translateX(-50%);
       text-align: center;
@@ -58,8 +61,8 @@
     }
 
     .birthday-text h1 {
-      font-family: 'Dancing Script', 'Georgia', cursive;
-      font-size: clamp(2.5rem, 10vw, 5rem);
+      font-family: 'Snell Roundhand', 'Bradley Hand', 'Segoe Script', 'Georgia', cursive;
+      font-size: clamp(2rem, 9vw, 5rem);
       font-weight: 500;
       letter-spacing: 0.02em;
       color: #fffaf0;
@@ -73,8 +76,8 @@
 
     .signature {
       position: fixed;
-      bottom: 8%;
-      right: 6%;
+      bottom: calc(8% + env(safe-area-inset-bottom, 0px));
+      right: max(6%, env(safe-area-inset-right, 0px));
       z-index: 10;
       pointer-events: none;
       user-select: none;
@@ -91,11 +94,11 @@
     }
 
     .hint {
-      bottom: max(env(safe-area-inset-bottom), 1.5rem);
+      bottom: calc(max(env(safe-area-inset-bottom, 0px), 1rem) + 0.5rem);
       left: 50%;
       transform: translateX(-50%);
       padding: 0.5rem 1rem;
-      font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
       font-size: 0.7rem;
       color: rgba(255, 255, 255, 0.3);
       opacity: 0;
@@ -143,7 +146,7 @@
     }
 
     .loading-text {
-      font-family: 'Dancing Script', 'Georgia', cursive;
+      font-family: 'Snell Roundhand', 'Bradley Hand', 'Segoe Script', 'Georgia', cursive;
       font-size: 1.5rem;
       color: rgba(255, 250, 243, 0.5);
       letter-spacing: 0.15em;
@@ -167,18 +170,7 @@
 
     @media (max-width: 480px) {
       .birthday-text {
-        bottom: 15%;
-      }
-
-      .signature {
-        bottom: 10%;
-        right: 5%;
-      }
-    }
-
-    @media (max-height: 600px) {
-      .birthday-text {
-        bottom: 8%;
+        bottom: calc(14% + env(safe-area-inset-bottom, 0px));
       }
 
       .birthday-text h1 {
@@ -186,11 +178,45 @@
       }
 
       .signature {
-        bottom: 5%;
+        bottom: calc(9% + env(safe-area-inset-bottom, 0px));
+        right: 5%;
+      }
+    }
+
+    @media (max-height: 600px) {
+      .birthday-text {
+        bottom: calc(6% + env(safe-area-inset-bottom, 0px));
+      }
+
+      .birthday-text h1 {
+        font-size: clamp(1.5rem, 7vw, 2.5rem);
+      }
+
+      .signature {
+        bottom: calc(4% + env(safe-area-inset-bottom, 0px));
+      }
+    }
+
+    @media (orientation: landscape) and (max-height: 500px) {
+      .birthday-text {
+        bottom: calc(4% + env(safe-area-inset-bottom, 0px));
+      }
+
+      .birthday-text h1 {
+        font-size: clamp(1.2rem, 5vh, 2rem);
+      }
+
+      .signature {
+        bottom: calc(3% + env(safe-area-inset-bottom, 0px));
+        font-size: 1rem;
+      }
+
+      .hint {
+        display: none;
       }
     }
   </style>
-  <script type="module" crossorigin src="./assets/index-DDSNpnjm.js"></script>
+  <script type="module" crossorigin src="./assets/index-DwEkkMXU.js"></script>
 </head>
 <body>
   <div id="loading" class="loading">
